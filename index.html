@@ -149,15 +149,15 @@ button.primary:active{opacity:0.85}
 .kontakt-type-row{display:flex;gap:8px;margin-bottom:14px}
 .ktype-btn{flex:1;padding:10px 4px;border:0.5px solid var(--border-med);border-radius:12px;background:var(--bg2);font-size:13px;font-weight:500;color:var(--text-sec);cursor:pointer;font-family:inherit;text-align:center;transition:background 0.15s,color 0.15s,border-color 0.15s}
 .ktype-btn.active{background:var(--teal-pale);color:var(--teal-dark);border-color:var(--teal-light)}
-@media(prefers-color-scheme:dark){.nare-row.hl-mott-ny{background:var(--teal-dark)}.nare-row.hl-mott-ok{background:#0C2A40}.nare-row.hl-kontakt-ny{background:#0a2a1f}.nare-row.hl-kontakt-ok{background:#0d1e2e}}
-.nare-row.hl-mott-ny{background:var(--teal-pale)}
-.nare-row.hl-mott-ny .p-name{color:var(--teal-dark)}
-.nare-row.hl-mott-ok{background:var(--blue-pale)}
+@media(prefers-color-scheme:dark){.nare-row.hl-mott-ny{background:#0a3828}.nare-row.hl-mott-ny .p-name{color:#7ed8b4}.nare-row.hl-mott-ok{background:#0C2A40}.nare-row.hl-mott-ok .p-name{color:#7ab8e0}.nare-row.hl-kontakt-ny{background:#062a1e}.nare-row.hl-kontakt-ny .p-name{color:var(--teal-light)}.nare-row.hl-kontakt-ok{background:#0d1e2e}.nare-row.hl-kontakt-ok .p-name{color:#93b8db}}
+.nare-row.hl-mott-ny{background:#b8e8d8}
+.nare-row.hl-mott-ny .p-name{color:#054030}
+.nare-row.hl-mott-ok{background:#cce3f5}
 .nare-row.hl-mott-ok .p-name{color:var(--blue-dark)}
-.nare-row.hl-kontakt-ny{background:#e1f5ee99}
-.nare-row.hl-kontakt-ny .p-name{color:var(--teal-mid)}
-.nare-row.hl-kontakt-ok{background:#e6f1fb99}
-.nare-row.hl-kontakt-ok .p-name{color:var(--blue-dark);opacity:0.7}
+.nare-row.hl-kontakt-ny{background:#daf2ea}
+.nare-row.hl-kontakt-ny .p-name{color:var(--teal-dark)}
+.nare-row.hl-kontakt-ok{background:#e6f1fb}
+.nare-row.hl-kontakt-ok .p-name{color:var(--blue-dark)}
 .siden-tag{font-size:10px;color:var(--text-ter);white-space:nowrap;flex-shrink:0}
 </style>
 </head>
@@ -467,19 +467,19 @@ function daysSince(ds){if(!ds)return null;const today=new Date();today.setHours(
 function sinceLabel(days){if(days===null)return null;if(days===0)return'i dag';if(days===1)return'i går';if(days<7)return days+' d. siden';if(days<30)return Math.round(days/7)+' u. siden';if(days<365)return Math.round(days/30)+' mnd. siden';return Math.round(days/365)+' år siden'}
 function kontaktHlClass(personId){
   const ks=db.kontakter.filter(k=>k.personId===personId);
-  if(!ks.length)return{hl:'',label:null};
+  if(!ks.length)return{hl:'',labelMot:null,labelKont:null};
   const mots=ks.filter(k=>k.type==='mote').sort((a,b)=>b.dato.localeCompare(a.dato));
   const kontakts=ks.filter(k=>k.type!=='mote').sort((a,b)=>b.dato.localeCompare(a.dato));
-  const sistMot=mots.length?mots[0].dato:null;
-  const sistKontakt=kontakts.length?kontakts[0].dato:null;
-  const daysMot=daysSince(sistMot);
-  const daysKont=daysSince(sistKontakt);
-  if(daysMot!==null&&daysMot<7)return{hl:'hl-mott-ny',label:'Møtt '+sinceLabel(daysMot)};
-  if(daysMot!==null&&daysMot<30)return{hl:'hl-mott-ok',label:'Møtt '+sinceLabel(daysMot)};
-  if(daysKont!==null&&daysKont<7)return{hl:'hl-kontakt-ny',label:'Kontakt '+sinceLabel(daysKont)};
-  if(daysKont!==null&&daysKont<30)return{hl:'hl-kontakt-ok',label:'Kontakt '+sinceLabel(daysKont)};
-  if(daysMot!==null||daysKont!==null){const best=daysMot!==null?daysMot:daysKont;const lbl=daysMot!==null?'Møtt ':'Kontakt ';return{hl:'',label:lbl+sinceLabel(best)}}
-  return{hl:'',label:null};
+  const daysMot=mots.length?daysSince(mots[0].dato):null;
+  const daysKont=kontakts.length?daysSince(kontakts[0].dato):null;
+  const labelMot=daysMot!==null?'Møtt '+sinceLabel(daysMot):null;
+  const labelKont=daysKont!==null?'Kontakt '+sinceLabel(daysKont):null;
+  let hl='';
+  if(daysMot!==null&&daysMot<7)hl='hl-mott-ny';
+  else if(daysMot!==null&&daysMot<30)hl='hl-mott-ok';
+  else if(daysKont!==null&&daysKont<7)hl='hl-kontakt-ny';
+  else if(daysKont!==null&&daysKont<30)hl='hl-kontakt-ok';
+  return{hl,labelMot,labelKont};
 }
 function toggleHjerte(personId){
   const p=db.persons.find(x=>x.id===personId);if(!p)return;
@@ -508,11 +508,14 @@ function renderNare(){
     const col=ac(p.id);
     const st=kontaktHlClass(p.id);
     const hOn=p.hjerte?'on':'';
+    const sub=st.labelMot||st.labelKont
+      ?[st.labelMot,st.labelKont].filter(Boolean).join(' · ')
+      :null;
     return`<div class="nare-row ${st.hl}">
       <div class="avatar" style="background:${col.bg};color:${col.c};width:42px;height:42px;font-size:13px;flex-shrink:0">${initials(p.name)}</div>
       <div class="nare-info">
         <div class="p-name">${p.name}</div>
-        ${st.label?`<div style="font-size:11px;color:var(--text-sec);margin-top:2px">${st.label}</div>`:'<div style="font-size:11px;color:var(--text-ter);margin-top:2px">Ingen kontakt logget</div>'}
+        <div style="font-size:11px;color:var(--text-sec);margin-top:2px">${sub||'Ingen kontakt logget'}</div>
       </div>
       <button class="heart-btn ${hOn}" onclick="toggleHjerte('${p.id}')" aria-label="Hjerte">
         <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
