@@ -131,6 +131,34 @@ button.primary:active{opacity:0.85}
 .sort-chip.active{background:var(--amber-pale);color:var(--amber-deep);border-color:var(--amber-light)}
 @media(prefers-color-scheme:dark){.sort-chip.active{background:var(--amber-deep);color:var(--amber-pale);border-color:var(--amber-mid)}}
 .gavelogg-section-head{font-size:13px;font-weight:500;color:var(--text-sec);padding:14px 18px 8px;border-top:0.5px solid var(--border);margin-top:8px}
+
+/* Nære relasjoner */
+.nare-section-head{font-size:11px;font-weight:500;color:var(--text-ter);text-transform:uppercase;letter-spacing:0.06em;padding:0 18px;margin:14px 0 8px}
+.nare-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:0.5px solid var(--border);position:relative}
+.nare-row:last-child{border-bottom:none}
+.nare-info{flex:1;min-width:0}
+.nare-status{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.status-mott-ny{background:var(--teal-mid)}
+.status-mott-ok{background:var(--blue-dark);opacity:0.7}
+.status-kontakt-ny{background:var(--teal-light)}
+.status-kontakt-ok{background:#93b8db}
+.status-ingen{background:var(--border-med)}
+.heart-btn{width:36px;height:36px;border-radius:10px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.heart-btn svg{width:18px;height:18px;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none;stroke:var(--text-ter);transition:stroke 0.15s,fill 0.15s}
+.heart-btn.on svg{stroke:#E8826A;fill:#E8826A}
+.kontakt-type-row{display:flex;gap:8px;margin-bottom:14px}
+.ktype-btn{flex:1;padding:10px 4px;border:0.5px solid var(--border-med);border-radius:12px;background:var(--bg2);font-size:13px;font-weight:500;color:var(--text-sec);cursor:pointer;font-family:inherit;text-align:center;transition:background 0.15s,color 0.15s,border-color 0.15s}
+.ktype-btn.active{background:var(--teal-pale);color:var(--teal-dark);border-color:var(--teal-light)}
+@media(prefers-color-scheme:dark){.nare-row.hl-mott-ny{background:var(--teal-dark)}.nare-row.hl-mott-ok{background:#0C2A40}.nare-row.hl-kontakt-ny{background:#0a2a1f}.nare-row.hl-kontakt-ok{background:#0d1e2e}}
+.nare-row.hl-mott-ny{background:var(--teal-pale)}
+.nare-row.hl-mott-ny .p-name{color:var(--teal-dark)}
+.nare-row.hl-mott-ok{background:var(--blue-pale)}
+.nare-row.hl-mott-ok .p-name{color:var(--blue-dark)}
+.nare-row.hl-kontakt-ny{background:#e1f5ee99}
+.nare-row.hl-kontakt-ny .p-name{color:var(--teal-mid)}
+.nare-row.hl-kontakt-ok{background:#e6f1fb99}
+.nare-row.hl-kontakt-ok .p-name{color:var(--blue-dark);opacity:0.7}
+.siden-tag{font-size:10px;color:var(--text-ter);white-space:nowrap;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -199,6 +227,11 @@ button.primary:active{opacity:0.85}
   </div>
 </div>
 
+<div id="view-nare" class="view">
+  <div class="top-bar"><span class="top-bar-title">Nære</span></div>
+  <div id="nare-content"></div>
+</div>
+
 <nav class="bottom-nav">
   <button class="bn active" onclick="showView('hjem',this)" aria-label="Hjem">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -211,6 +244,10 @@ button.primary:active{opacity:0.85}
   <button class="bn" onclick="showView('gavelogg',this)" aria-label="Gavelogg">
     <svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
     Gavelogg
+  </button>
+  <button class="bn" onclick="showView('nare',this)" aria-label="Nære">
+    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+    Nære
   </button>
   <button class="bn" onclick="showView('innstillinger',this)" aria-label="Innstillinger">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -284,10 +321,10 @@ button.primary:active{opacity:0.85}
 <script>
 const MAX=150,KEY='merkedager_v2',STD=['Familie','Venner'];
 const AC=[{bg:'#EEEDFE',c:'#3C3489'},{bg:'#E1F5EE',c:'#085041'},{bg:'#FBEAF0',c:'#72243E'},{bg:'#FAEEDA',c:'#633806'},{bg:'#E6F1FB',c:'#0C447C'},{bg:'#EAF3DE',c:'#27500A'}];
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||{persons:[],logs:[],kort:[],cats:[]}}catch(e){return{persons:[],logs:[],kort:[],cats:[]}}}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{persons:[],logs:[],kort:[],cats:[],kontakter:[]}}catch(e){return{persons:[],logs:[],kort:[],cats:[],kontakter:[]}}}
 function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
 let db=load();
-if(!db.kort)db.kort=[];if(!db.cats)db.cats=[];
+if(!db.kort)db.kort=[];if(!db.cats)db.cats=[];if(!db.kontakter)db.kontakter=[];
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function initials(n){const p=n.trim().split(' ');return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():n.slice(0,2).toUpperCase()}
 function ac(id){let n=0;for(let ch of id)n+=ch.charCodeAt(0);return AC[n%AC.length]}
@@ -297,7 +334,7 @@ function ageStr(ds){const i=nextBirthdayInfo(ds);return i?`blir ${i.age} år i $
 function fmtDate(ds){if(!ds)return'';const p=ds.split('-'),mn=['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des'];return parseInt(p[2])+'. '+mn[parseInt(p[1])-1]}
 function hlClass(days){if(days===null)return'';if(days===0)return' hl-today';if(days<=14)return' hl-soon';return''}
 let activeFilter='alle', activeSort='navn';
-function showView(v,btn){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.bn').forEach(e=>e.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');if(btn)btn.classList.add('active');if(v==='hjem')renderHjem();if(v==='personer')renderPersoner();if(v==='gavelogg'){populateGaveloggSelect();renderGavelogg();renderLoggedSection()}if(v==='innstillinger')renderCats()}
+function showView(v,btn){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.bn').forEach(e=>e.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');if(btn)btn.classList.add('active');if(v==='hjem')renderHjem();if(v==='personer')renderPersoner();if(v==='gavelogg'){populateGaveloggSelect();renderGavelogg();renderLoggedSection()}if(v==='nare')renderNare();if(v==='innstillinger')renderCats()}
 function openModal(name){if(name==='add-person'){document.getElementById('new-name').value='';['new-bursdag','new-dap','new-bryllup'].forEach(id=>document.getElementById(id).value='');document.getElementById('add-error').textContent='';populateCatSelect('new-cat','')}document.getElementById('overlay-'+name).classList.add('open')}
 function closeModal(name){document.getElementById('overlay-'+name).classList.remove('open')}
 function allCats(){return[...STD,...db.cats]}
@@ -362,7 +399,7 @@ function renderPersoner(){const q=(document.getElementById('search-input')||{val
     const withoutB=list.filter(p=>!p.bursdag||parseInt(p.bursdag.split('-')[0])<1900).sort((a,b)=>a.name.localeCompare(b.name,'nb'));
     withB.sort((a,b)=>{const ya=parseInt(a.bursdag.split('-')[0]),yb=parseInt(b.bursdag.split('-')[0]);return activeSort==='eldst'?ya-yb:yb-ya});
     list=[...withB,...withoutB];
-  }document.getElementById('person-count-top').textContent=db.persons.length+'/'+MAX;const el=document.getElementById('person-list');if(!list.length){el.innerHTML='<div class="empty">Ingen funnet</div>';return}el.innerHTML=list.map(p=>{const col=ac(p.id);const days=daysUntil(p.bursdag);const hl=hlClass(days);const as=ageStr(p.bursdag);const dates=[p.bursdag?`<span class="badge badge-bursdag">${fmtDate(p.bursdag)}</span>`:'',p.dap?`<span class="badge badge-dap">Dåp ${fmtDate(p.dap)}</span>`:'',p.bryllup?`<span class="badge badge-bryllup">Bryllup ${fmtDate(p.bryllup)}</span>`:''].filter(Boolean).join('');return`<div class="person-row${hl}"><div class="avatar" style="background:${col.bg};color:${col.c}">${initials(p.name)}</div><div class="person-info"><div class="p-name">${p.name}</div><div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:3px">${catBadgeHtml(p.cat)}${as?`<span class="age-line" style="margin-top:0">${as}</span>`:''}${dates}</div></div><div class="row-actions"><button class="icon-btn" onclick="openLogModal('${p.id}')" aria-label="Logg gave"><svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg></button><button class="icon-btn" onclick="editPerson('${p.id}')" aria-label="Rediger"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn danger" onclick="deletePerson('${p.id}')" aria-label="Slett"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></div>`}).join('')}
+  }document.getElementById('person-count-top').textContent=db.persons.length+'/'+MAX;const el=document.getElementById('person-list');if(!list.length){el.innerHTML='<div class="empty">Ingen funnet</div>';return}el.innerHTML=list.map(p=>{const col=ac(p.id);const days=daysUntil(p.bursdag);const hl=hlClass(days);const as=ageStr(p.bursdag);const dates=[p.bursdag?`<span class="badge badge-bursdag">${fmtDate(p.bursdag)}</span>`:'',p.dap?`<span class="badge badge-dap">Dåp ${fmtDate(p.dap)}</span>`:'',p.bryllup?`<span class="badge badge-bryllup">Bryllup ${fmtDate(p.bryllup)}</span>`:''].filter(Boolean).join('');return`<div class="person-row${hl}"><div class="avatar" style="background:${col.bg};color:${col.c}">${initials(p.name)}</div><div class="person-info"><div class="p-name">${p.name}</div><div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:3px">${catBadgeHtml(p.cat)}${as?`<span class="age-line" style="margin-top:0">${as}</span>`:''}${dates}</div></div><div class="row-actions"><button class="heart-btn${p.hjerte?' on':''}" onclick="toggleHjerte('${p.id}')" aria-label="Hjerte"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></button><button class="icon-btn" onclick="openLogModal('${p.id}')" aria-label="Logg gave"><svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg></button><button class="icon-btn" onclick="editPerson('${p.id}')" aria-label="Rediger"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn danger" onclick="deletePerson('${p.id}')" aria-label="Slett"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></div>`}).join('')}
 function setFilter(f){activeFilter=f;renderPersoner()}
 function setSort(s){activeSort=s;renderPersoner()}
 function renderLoggedSection(){
@@ -422,8 +459,112 @@ function deleteEditLog(){
 }
 function populateGaveloggSelect(){const sel=document.getElementById('gavelogg-select'),cur=sel.value;sel.innerHTML='<option value="">— velg person —</option>';db.persons.slice().sort((a,b)=>a.name.localeCompare(b.name,'nb')).forEach(p=>{const as=ageStr(p.bursdag);const o=document.createElement('option');o.value=p.id;o.textContent=p.name+(as?' · '+as:'');sel.appendChild(o)});if(cur)sel.value=cur}
 function renderGavelogg(){const id=document.getElementById('gavelogg-select').value,el=document.getElementById('gavelogg-content');if(!id){el.innerHTML='<div class="empty">Velg en person for å se logg</div>';return}const p=db.persons.find(x=>x.id===id);const as=p&&p.bursdag?ageStr(p.bursdag):'';const col=ac(p.id);const days=daysUntil(p.bursdag);const hl=hlClass(days);const personHead=`<div class="person-head-card${hl}"><div class="avatar" style="background:${col.bg};color:${col.c};width:38px;height:38px;font-size:11px">${initials(p.name)}</div><div><div class="p-name">${p.name}</div>${as?`<div class="age-line">${as}</div>`:''}</div></div>`;const pLogs=db.logs.filter(l=>l.personId===id).sort((a,b)=>b.year-a.year);const pKort=db.kort.filter(k=>k.personId===id);const years=[...new Set([...pLogs.map(l=>l.year),...pKort.map(k=>k.year)])].sort((a,b)=>b-a);if(!years.length){el.innerHTML=personHead+`<div class="empty">Ingen logg ennå</div><button class="fab" onclick="openLogModal('${id}')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Logg gave / kort</button>`;return}const oLbl={bursdag:'Bursdag',jul:'Jul'},oBadge={bursdag:'badge-bursdag',jul:'badge-jul'};const yearBlocks=years.map(yr=>{const yLogs=pLogs.filter(l=>l.year===yr);const julK=pKort.find(k=>k.year===yr&&k.type==='julekort');const burK=pKort.find(k=>k.year===yr&&k.type==='bursdagshilsen');const kortHtml=[julK?`<div class="log-entry"><div class="log-top"><span class="badge badge-jul">Julekort</span><span style="font-size:11px;color:var(--text-sec);margin-left:4px">Sendt</span></div></div>`:'',burK?`<div class="log-entry"><div class="log-top"><span class="badge badge-bursdag">Bursdagshilsen</span><span style="font-size:11px;color:var(--text-sec);margin-left:4px">Sendt</span></div></div>`:''].filter(Boolean).join('');const logsHtml=yLogs.map(l=>`<div class="log-entry"><div class="log-top"><span class="badge ${oBadge[l.occasion]||'badge-bursdag'}">${oLbl[l.occasion]||l.occasion}</span></div><div class="log-desc">${l.desc}</div><button onclick="openEditLog('${l.id}')" style="margin-top:6px;background:transparent;border:none;font-size:11px;color:var(--text-ter);cursor:pointer;font-family:inherit;padding:0">Rediger oppføring</button></div>`).join('');return`<div class="card" style="padding:14px 16px;margin-bottom:8px"><div class="log-year-head"><span class="log-year-label">${yr}</span><button class="icon-btn" onclick="openLogModal('${id}')" style="width:30px;height:30px" aria-label="Legg til"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></div>${kortHtml}${logsHtml}</div>`}).join('');el.innerHTML=personHead+`<div style="padding:0 18px">${yearBlocks}</div>`+`<button class="fab" onclick="openLogModal('${id}')"><svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg> Logg gave / kort til ${p.name}</button>`}
+
+// --- Nære relasjoner ---
+let activeKtype='mote';
+function setKtype(t){activeKtype=t;['mote','samtale','melding'].forEach(k=>{document.getElementById('ktype-'+k).classList.toggle('active',k===t)})}
+function daysSince(ds){if(!ds)return null;const today=new Date();today.setHours(0,0,0,0);const d=new Date(ds);d.setHours(0,0,0,0);return Math.round((today-d)/864e5)}
+function sinceLabel(days){if(days===null)return null;if(days===0)return'i dag';if(days===1)return'i går';if(days<7)return days+' d. siden';if(days<30)return Math.round(days/7)+' u. siden';if(days<365)return Math.round(days/30)+' mnd. siden';return Math.round(days/365)+' år siden'}
+function kontaktHlClass(personId){
+  const ks=db.kontakter.filter(k=>k.personId===personId);
+  if(!ks.length)return{hl:'',label:null};
+  const mots=ks.filter(k=>k.type==='mote').sort((a,b)=>b.dato.localeCompare(a.dato));
+  const kontakts=ks.filter(k=>k.type!=='mote').sort((a,b)=>b.dato.localeCompare(a.dato));
+  const sistMot=mots.length?mots[0].dato:null;
+  const sistKontakt=kontakts.length?kontakts[0].dato:null;
+  const daysMot=daysSince(sistMot);
+  const daysKont=daysSince(sistKontakt);
+  if(daysMot!==null&&daysMot<7)return{hl:'hl-mott-ny',label:'Møtt '+sinceLabel(daysMot)};
+  if(daysMot!==null&&daysMot<30)return{hl:'hl-mott-ok',label:'Møtt '+sinceLabel(daysMot)};
+  if(daysKont!==null&&daysKont<7)return{hl:'hl-kontakt-ny',label:'Kontakt '+sinceLabel(daysKont)};
+  if(daysKont!==null&&daysKont<30)return{hl:'hl-kontakt-ok',label:'Kontakt '+sinceLabel(daysKont)};
+  if(daysMot!==null||daysKont!==null){const best=daysMot!==null?daysMot:daysKont;const lbl=daysMot!==null?'Møtt ':'Kontakt ';return{hl:'',label:lbl+sinceLabel(best)}}
+  return{hl:'',label:null};
+}
+function toggleHjerte(personId){
+  const p=db.persons.find(x=>x.id===personId);if(!p)return;
+  p.hjerte=!p.hjerte;save(db);renderNare();renderPersoner();
+}
+function openKontaktModal(personId){
+  const p=db.persons.find(x=>x.id===personId);if(!p)return;
+  document.getElementById('kontakt-modal-title').textContent=p.name;
+  document.getElementById('kontakt-person-id').value=personId;
+  document.getElementById('kontakt-dato').value=new Date().toISOString().slice(0,10);
+  setKtype('mote');
+  openModal('logg-kontakt');
+}
+function saveKontakt(){
+  const personId=document.getElementById('kontakt-person-id').value;
+  const dato=document.getElementById('kontakt-dato').value;
+  if(!dato)return;
+  db.kontakter.push({id:uid(),personId,type:activeKtype,dato});
+  save(db);closeModal('logg-kontakt');renderNare();
+}
+function renderNare(){
+  const el=document.getElementById('nare-content');
+  const hjerte=db.persons.filter(p=>p.hjerte);
+  const harKontakt=db.persons.filter(p=>!p.hjerte&&db.kontakter.some(k=>k.personId===p.id));
+  function personRow(p){
+    const col=ac(p.id);
+    const st=kontaktHlClass(p.id);
+    const hOn=p.hjerte?'on':'';
+    return`<div class="nare-row ${st.hl}">
+      <div class="avatar" style="background:${col.bg};color:${col.c};width:42px;height:42px;font-size:13px;flex-shrink:0">${initials(p.name)}</div>
+      <div class="nare-info">
+        <div class="p-name">${p.name}</div>
+        ${st.label?`<div style="font-size:11px;color:var(--text-sec);margin-top:2px">${st.label}</div>`:'<div style="font-size:11px;color:var(--text-ter);margin-top:2px">Ingen kontakt logget</div>'}
+      </div>
+      <button class="heart-btn ${hOn}" onclick="toggleHjerte('${p.id}')" aria-label="Hjerte">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      </button>
+      <button class="icon-btn" onclick="openKontaktModal('${p.id}')" aria-label="Logg kontakt" style="margin-left:2px">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </button>
+    </div>`;
+  }
+  let html='';
+  if(hjerte.length){
+    html+=`<div class="nare-section-head">Prioriterte</div><div class="card" style="margin-bottom:0;border-radius:16px">`;
+    html+=hjerte.sort((a,b)=>a.name.localeCompare(b.name,'nb')).map(personRow).join('');
+    html+=`</div>`;
+  }
+  if(harKontakt.length){
+    html+=`<div class="nare-section-head" style="margin-top:${hjerte.length?'18px':'0'}">I kontakt med</div><div class="card" style="margin-bottom:0;border-radius:16px">`;
+    const sorted=harKontakt.sort((a,b)=>{
+      const da=db.kontakter.filter(k=>k.personId===a.id).sort((x,y)=>y.dato.localeCompare(x.dato))[0]?.dato||'';
+      const db2=db.kontakter.filter(k=>k.personId===b.id).sort((x,y)=>y.dato.localeCompare(x.dato))[0]?.dato||'';
+      return db2.localeCompare(da);
+    });
+    html+=sorted.map(personRow).join('');
+    html+=`</div>`;
+  }
+  if(!hjerte.length&&!harKontakt.length){
+    html=`<div class="empty">Trykk ♥ på en person for å prioritere dem, eller logg kontakt for å se dem her.</div>`;
+  }
+  el.innerHTML=html;
+}
 renderHjem();
 </script>
+
+<div class="overlay" id="overlay-logg-kontakt">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <span class="modal-title" id="kontakt-modal-title">Logg kontakt</span>
+      <button class="icon-btn" onclick="closeModal('logg-kontakt')" aria-label="Lukk">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <input type="hidden" id="kontakt-person-id">
+    <div class="kontakt-type-row">
+      <button class="ktype-btn active" id="ktype-mote" onclick="setKtype('mote')">Møte</button>
+      <button class="ktype-btn" id="ktype-samtale" onclick="setKtype('samtale')">Samtale</button>
+      <button class="ktype-btn" id="ktype-melding" onclick="setKtype('melding')">Melding</button>
+    </div>
+    <label class="field"><span>Dato</span><input type="date" id="kontakt-dato"></label>
+    <button class="primary" onclick="saveKontakt()">Lagre</button>
+  </div>
+</div>
 
 <div class="overlay" id="overlay-edit-log">
   <div class="modal">
