@@ -386,7 +386,7 @@ function renderPersoner(){const q=(document.getElementById('search-input')||{val
   const fr=document.getElementById('filter-row');
   fr.innerHTML=[{id:'alle',label:'Alle'},...allCats().map(c=>({id:c,label:c}))].map(f=>`<button class="filter-chip${activeFilter===f.id?' active':''}" onclick="setFilter('${f.id}')">${f.label}</button>`).join('');
   const sr=document.getElementById('sort-row');
-  const sorts=[{id:'navn',label:'A–Å'},{id:'bursdag',label:'Bursdag'},{id:'eldst',label:'Eldst først'},{id:'yngst',label:'Yngst først'}];
+  const sorts=[{id:'navn',label:'A–Å'},{id:'bursdag',label:'Bursdag'},{id:'runde',label:'Runde tall'},{id:'eldst',label:'Eldst først'},{id:'yngst',label:'Yngst først'}];
   sr.innerHTML=sorts.map(s=>`<button class="sort-chip${activeSort===s.id?' active':''}" onclick="setSort('${s.id}')">${s.label}</button>`).join('');
   let list=db.persons.filter(p=>p.name.toLowerCase().includes(q)&&(activeFilter==='alle'||(p.cat||'Familie')===activeFilter));
   if(activeSort==='navn') list.sort((a,b)=>a.name.localeCompare(b.name,'nb'));
@@ -394,12 +394,33 @@ function renderPersoner(){const q=(document.getElementById('search-input')||{val
     const withB=list.filter(p=>p.bursdag).sort((a,b)=>daysUntil(a.bursdag)-daysUntil(b.bursdag));
     const withoutB=list.filter(p=>!p.bursdag).sort((a,b)=>a.name.localeCompare(b.name,'nb'));
     list=[...withB,...withoutB];
+  } else if(activeSort==='runde'){
+    const today=new Date();const thisYear=today.getFullYear();
+    function nextRoundYear(ds){if(!ds)return null;const by=parseInt(ds.split('-')[0]);if(by<1900)return null;let yr=thisYear;while(yr<thisYear+100){const age=(yr-by);if(age>0&&age%10===0)return yr;yr++;}return null;}
+    function roundDaysUntil(ds,roundYr){if(!roundYr||!ds)return null;const p=ds.split('-');const d=new Date(roundYr,parseInt(p[1])-1,parseInt(p[2]));const today2=new Date();today2.setHours(0,0,0,0);return Math.round((d-today2)/864e5);}
+    const withRound=list.filter(p=>nextRoundYear(p.bursdag)!==null).map(p=>{const ry=nextRoundYear(p.bursdag);return{p,ry,days:roundDaysUntil(p.bursdag,ry)}}).filter(x=>x.days>=0).sort((a,b)=>a.days-b.days);
+    const withoutRound=list.filter(p=>!nextRoundYear(p.bursdag)||roundDaysUntil(p.bursdag,nextRoundYear(p.bursdag))<0).sort((a,b)=>a.name.localeCompare(b.name,'nb'));
+    list=[...withRound.map(x=>x.p),...withoutRound];
   } else if(activeSort==='eldst'||activeSort==='yngst'){
     const withB=list.filter(p=>p.bursdag&&parseInt(p.bursdag.split('-')[0])>=1900);
     const withoutB=list.filter(p=>!p.bursdag||parseInt(p.bursdag.split('-')[0])<1900).sort((a,b)=>a.name.localeCompare(b.name,'nb'));
     withB.sort((a,b)=>{const ya=parseInt(a.bursdag.split('-')[0]),yb=parseInt(b.bursdag.split('-')[0]);return activeSort==='eldst'?ya-yb:yb-ya});
     list=[...withB,...withoutB];
-  }document.getElementById('person-count-top').textContent=db.persons.length+'/'+MAX;const el=document.getElementById('person-list');if(!list.length){el.innerHTML='<div class="empty">Ingen funnet</div>';return}el.innerHTML=list.map(p=>{const col=ac(p.id);const days=daysUntil(p.bursdag);const hl=hlClass(days);const as=ageStr(p.bursdag);const dates=[p.bursdag?`<span class="badge badge-bursdag">${fmtDate(p.bursdag)}</span>`:'',p.dap?`<span class="badge badge-dap">Dåp ${fmtDate(p.dap)}</span>`:'',p.bryllup?`<span class="badge badge-bryllup">Bryllup ${fmtDate(p.bryllup)}</span>`:''].filter(Boolean).join('');return`<div class="person-row${hl}"><div class="avatar" style="background:${col.bg};color:${col.c}">${initials(p.name)}</div><div class="person-info"><div class="p-name">${p.name}</div><div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:3px">${catBadgeHtml(p.cat)}${as?`<span class="age-line" style="margin-top:0">${as}</span>`:''}${dates}</div></div><div class="row-actions"><button class="heart-btn${p.hjerte?' on':''}" onclick="toggleHjerte('${p.id}')" aria-label="Hjerte"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></button><button class="icon-btn" onclick="openKontaktModal('${p.id}')" aria-label="Logg kontakt"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button><button class="icon-btn" onclick="openLogModal('${p.id}')" aria-label="Logg gave"><svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg></button><button class="icon-btn" onclick="editPerson('${p.id}')" aria-label="Rediger"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn danger" onclick="deletePerson('${p.id}')" aria-label="Slett"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></div>`}).join('')}
+  }
+  document.getElementById('person-count-top').textContent=db.persons.length+'/'+MAX;
+  const el=document.getElementById('person-list');
+  if(!list.length){el.innerHTML='<div class="empty">Ingen funnet</div>';return}
+  el.innerHTML=list.map(p=>{
+    const col=ac(p.id);const days=daysUntil(p.bursdag);const hl=hlClass(days);const as=ageStr(p.bursdag);
+    let roundBadge='';
+    if(activeSort==='runde'&&p.bursdag){
+      const by=parseInt(p.bursdag.split('-')[0]);const today2=new Date();today2.setHours(0,0,0,0);const thisYear2=today2.getFullYear();
+      let yr=thisYear2;while(yr<thisYear2+100){const age=yr-by;if(age>0&&age%10===0){const pd=p.bursdag.split('-');const rd=new Date(yr,parseInt(pd[1])-1,parseInt(pd[2]));if(rd>=today2){roundBadge=`<span class="badge badge-bursdag">Fyller ${age} i ${yr}</span>`;break;}yr++;}}
+    }
+    const dates=[p.bursdag?`<span class="badge badge-bursdag">${fmtDate(p.bursdag)}</span>`:'',p.dap?`<span class="badge badge-dap">Dåp ${fmtDate(p.dap)}</span>`:'',p.bryllup?`<span class="badge badge-bryllup">Bryllup ${fmtDate(p.bryllup)}</span>`:''].filter(Boolean).join('');
+    const ideCount=p.ideer&&p.ideer.length?`<span style="font-size:10px;color:var(--teal-dark);background:var(--teal-pale);border-radius:8px;padding:1px 6px;margin-left:4px">${p.ideer.length} ide${p.ideer.length>1?'er':''}</span>`:'';
+    return`<div class="person-row${hl}"><div class="avatar" style="background:${col.bg};color:${col.c}">${initials(p.name)}</div><div class="person-info"><div class="p-name">${p.name}${ideCount}</div><div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:3px">${catBadgeHtml(p.cat)}${as?`<span class="age-line" style="margin-top:0">${as}</span>`:''}${roundBadge||dates}</div></div><div class="row-actions"><button class="heart-btn${p.hjerte?' on':''}" onclick="toggleHjerte('${p.id}')" aria-label="Hjerte"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></button><button class="icon-btn" onclick="openKontaktModal('${p.id}')" aria-label="Logg kontakt"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></button><button class="icon-btn" onclick="openIdeerModal('${p.id}')" aria-label="Gaveideer"><svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg></button><button class="icon-btn" onclick="openLogModal('${p.id}')" aria-label="Logg gave"><svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg></button><button class="icon-btn" onclick="editPerson('${p.id}')" aria-label="Rediger"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="icon-btn danger" onclick="deletePerson('${p.id}')" aria-label="Slett"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button></div></div>`
+  }).join('')}
 function setFilter(f){activeFilter=f;renderPersoner()}
 function setSort(s){activeSort=s;renderPersoner()}
 function renderLoggedSection(){
@@ -465,6 +486,41 @@ let activeKtype='mote';
 function setKtype(t){activeKtype=t;['mote','samtale','melding'].forEach(k=>{document.getElementById('ktype-'+k).classList.toggle('active',k===t)})}
 function daysSince(ds){if(!ds)return null;const today=new Date();today.setHours(0,0,0,0);const d=new Date(ds);d.setHours(0,0,0,0);return Math.round((today-d)/864e5)}
 function sinceLabel(days){if(days===null)return null;if(days===0)return'i dag';if(days===1)return'i går';if(days<7)return days+' d. siden';if(days<30)return Math.round(days/7)+' u. siden';if(days<365)return Math.round(days/30)+' mnd. siden';return Math.round(days/365)+' år siden'}
+function kontaktScore(personId){
+  const weights={mote:10,samtale:4,melding:1};
+  return(db.kontakter.filter(k=>k.personId===personId)||[]).reduce((sum,k)=>{
+    const days=daysSince(k.dato);if(days===null)return sum;
+    const w=weights[k.type]||1;
+    return sum+w*Math.pow(0.5,days/30);
+  },0);
+}
+function openIdeerModal(personId){
+  const p=db.persons.find(x=>x.id===personId);if(!p)return;
+  document.getElementById('ideer-modal-title').textContent=p.name;
+  document.getElementById('ideer-person-id').value=personId;
+  renderIdeerList(personId);
+  openModal('gaveideer');
+}
+function renderIdeerList(personId){
+  const p=db.persons.find(x=>x.id===personId);
+  const ideer=p&&p.ideer||[];
+  const el=document.getElementById('ideer-list');
+  if(!ideer.length){el.innerHTML='<div style="font-size:13px;color:var(--text-ter);padding:8px 0">Ingen ideer ennå</div>';return}
+  el.innerHTML=ideer.map((ide,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--border)"><span style="flex:1;font-size:14px">${ide}</span><button class="icon-btn danger" onclick="deleteIde('${personId}',${i})" aria-label="Slett"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
+}
+function addIde(){
+  const personId=document.getElementById('ideer-person-id').value;
+  const inp=document.getElementById('ide-input');
+  const v=inp.value.trim();if(!v)return;
+  const p=db.persons.find(x=>x.id===personId);if(!p)return;
+  if(!p.ideer)p.ideer=[];
+  p.ideer.push(v);
+  save(db);inp.value='';renderIdeerList(personId);renderPersoner();
+}
+function deleteIde(personId,idx){
+  const p=db.persons.find(x=>x.id===personId);if(!p||!p.ideer)return;
+  p.ideer.splice(idx,1);save(db);renderIdeerList(personId);renderPersoner();
+}
 function kontaktHlClass(personId){
   const ks=db.kontakter.filter(k=>k.personId===personId);
   if(!ks.length)return{hl:'',labelMot:null,labelKont:null};
@@ -528,7 +584,7 @@ function renderNare(){
   let html='';
   if(hjerte.length){
     html+=`<div class="nare-section-head">Prioriterte</div><div class="card" style="margin-bottom:0;border-radius:16px">`;
-    html+=hjerte.sort((a,b)=>a.name.localeCompare(b.name,'nb')).map(personRow).join('');
+    html+=hjerte.sort((a,b)=>kontaktScore(b.id)-kontaktScore(a.id)).map(personRow).join('');
     html+=`</div>`;
   }
   if(harKontakt.length){
@@ -548,6 +604,26 @@ function renderNare(){
 }
 renderHjem();
 </script>
+
+<div class="overlay" id="overlay-gaveideer">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <span class="modal-title" id="ideer-modal-title">Gaveideer</span>
+      <button class="icon-btn" onclick="closeModal('gaveideer')" aria-label="Lukk">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <input type="hidden" id="ideer-person-id">
+    <div id="ideer-list" style="margin-bottom:14px"></div>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="ide-input" placeholder="Ny idé…" style="flex:1;font-size:14px;padding:10px 12px;border:0.5px solid var(--border-med);border-radius:12px;background:var(--bg2);color:var(--text);font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')addIde()">
+      <button class="icon-btn" onclick="addIde()" aria-label="Legg til">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
 
 <div class="overlay" id="overlay-logg-kontakt">
   <div class="modal">
